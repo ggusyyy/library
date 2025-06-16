@@ -1,16 +1,22 @@
-from typing import Dict, List, Optional
+from typing import List, Optional
 
+from domain.exceptions.user_not_registered import UserNotRegistered
 from domain.models.user import User
 from domain.repositories.user_repository import UserRepository
 
 class InMemoryUserRepository(UserRepository):
     
     def __init__(self) -> None:
-        self.users: Dict[str, User]
+        self.users: List[User] = []
     
     
     def save(self, user: User) -> None:
-        self.users[user.id] = User
+        if self.get_by_id(user.id) is None:    
+            self.users.append(user)
+            return
+        for index, stored_user in enumerate(self.users):
+            if stored_user.id == user.id:
+                self.users[index] = user
     
     
     def get_all(self) -> List[User]:
@@ -23,11 +29,16 @@ class InMemoryUserRepository(UserRepository):
                 return user
 
 
-    def update(self, user):
-        self.save(user)
+    def update(self, user: User):
+        if not self.get_by_id(user.id):    
+            raise UserNotRegistered()
+        
+        for index, stored_user in enumerate(self.users):
+            if stored_user.id == user.id:
+                self.users[index] = user
     
     
     def delete(self, id: str) -> None:
         for user in self.users:
             if user.id == id:
-                self.users.pop(user.id)
+                self.users.remove(user)

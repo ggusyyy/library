@@ -1,16 +1,20 @@
-from typing import Dict, List, Optional
+from typing import List, Optional
 
+from domain.exceptions.book_not_found import BookNotFound
 from domain.models.book import Book
 from domain.repositories.book_repository import BookRepository
 
 class InMemoryBookRepository(BookRepository):
     
     def __init__(self) -> None:
-        self.books: Dict[str, Book]
+        self.books: List[Book] = []
     
     
     def save(self, book: Book) -> None:
-        self.books[book.id] = Book
+        if self.get_by_id(book.id) is None:    
+            self.books.append(book)
+            return
+        self.update(book)
     
     
     def get_all(self) -> List[Book]:
@@ -23,11 +27,17 @@ class InMemoryBookRepository(BookRepository):
                 return book
 
 
-    def update(self, book):
-        self.save(book)
+    def update(self, book: Book) -> None:
+        if not self.get_by_id(book.id):    
+            raise BookNotFound()
+        
+        for index, stored_book in enumerate(self.books):
+            if stored_book.id == book.id:
+                self.books[index] = book
+        
     
     
-    def delete(self, id: str) -> None:
+    def delete(self, book_id: str) -> None:
         for book in self.books:
-            if book.id == id:
-                self.books.pop(book.id)
+            if book.id == book_id:
+                self.books.remove(book)
