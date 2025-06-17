@@ -7,24 +7,24 @@ from domain.repositories.user_repository import UserRepository
 class InMemoryUserRepository(UserRepository):
     
     def __init__(self) -> None:
-        self.users: List[User] = []
+        self.__users: List[User] = []
     
     
     def save(self, user: User) -> None:
         if self.get_by_id(user.id) is None:    
-            self.users.append(user)
+            self.__users.append(user)
             return
-        for index, stored_user in enumerate(self.users):
+        for index, stored_user in enumerate(self.__users):
             if stored_user.id == user.id:
-                self.users[index] = user
+                self.__users[index] = user
     
     
     def get_all(self) -> List[User]:
-        return self.users
+        return self.__users
 
     
     def get_by_id(self, id: str) -> Optional[User]:
-        for user in self.users:
+        for user in self.__users:
             if user.id == id:
                 return user
 
@@ -33,12 +33,12 @@ class InMemoryUserRepository(UserRepository):
         if not self.get_by_id(user.id):    
             raise UserNotRegistered()
         
-        for index, stored_user in enumerate(self.users):
+        for index, stored_user in enumerate(self.__users):
             if stored_user.id == user.id:
-                self.users[index] = user
+                self.__users[index] = user
     
     
     def delete(self, id: str) -> None:
-        for user in self.users:
+        for user in self.__users:
             if user.id == id:
-                self.users.remove(user)
+                self.__users.remove(user)
