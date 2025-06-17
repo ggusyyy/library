@@ -28,15 +28,16 @@ class InMemoryUserRepository(UserRepository):
 
 
     def update(self, user: User):
-        if not self.get_by_id(user.id):    
-            raise UserNotRegistered()
-        
         for index, stored_user in enumerate(self.__users):
             if stored_user.id == user.id:
                 self.__users[index] = user
+                break
+        
+        raise UserNotRegistered()
     
     
     def delete(self, id: str) -> None:
         for user in self.__users:
             if user.id == id:
                 self.__users.remove(user)
+                break
