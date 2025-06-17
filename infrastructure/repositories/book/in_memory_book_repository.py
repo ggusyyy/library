@@ -28,12 +28,12 @@ class InMemoryBookRepository(BookRepository):
 
 
     def update(self, book: Book) -> None:
-        if not self.get_by_id(book.id):    
-            raise BookNotFound()
-        
         for index, stored_book in enumerate(self.__books):
             if stored_book.id == book.id:
                 self.__books[index] = book
+                break
+        
+        raise BookNotFound()
         
     
     
@@ -41,3 +41,4 @@ class InMemoryBookRepository(BookRepository):
         for book in self.__books:
             if book.id == book_id:
                 self.__books.remove(book)
+                break
