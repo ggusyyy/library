@@ -14,9 +14,7 @@ class InMemoryUserRepository(UserRepository):
         if self.get_by_id(user.id) is None:    
             self.__users.append(user)
             return
-        for index, stored_user in enumerate(self.__users):
-            if stored_user.id == user.id:
-                self.__users[index] = user
+        self.update(user)
     
     
     def get_all(self) -> List[User]:
