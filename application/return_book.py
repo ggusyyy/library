@@ -2,15 +2,13 @@ from typing import Optional
 
 from domain.exceptions.book_not_found import BookNotFound
 from domain.exceptions.user_not_registered import UserNotRegistered
-
 from domain.models.book import Book
 from domain.models.user import User
-
 from domain.repositories.book_repository import BookRepository
 from domain.repositories.user_repository import UserRepository
 
 
-class BorrowBookUseCase:
+class ReturnBookUseCase:
     def __init__(
         self,
         book_repository: BookRepository,
@@ -29,8 +27,8 @@ class BorrowBookUseCase:
         if not book:
             raise BookNotFound()
         
-        user.borrow_book(book)
-        book.change_availability(False)
+        user.return_book(book.id)
+        book.change_availability(True)
         
         self.user_repository.save(user)
         self.book_repository.save(book)
