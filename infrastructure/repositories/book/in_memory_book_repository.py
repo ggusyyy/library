@@ -18,7 +18,7 @@ class InMemoryBookRepository(BookRepository):
     
     
     def get_all(self) -> List[Book]:
-        return self.__books
+        return [book for book in self.__books]
 
 
     def get_by_id(self, id: str) -> Optional[Book]:

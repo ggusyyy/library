@@ -18,7 +18,7 @@ class InMemoryUserRepository(UserRepository):
     
     
     def get_all(self) -> List[User]:
-        return self.__users
+        return [user for user in self.__users]
 
     
     def get_by_id(self, id: str) -> Optional[User]:
