@@ -1,6 +1,5 @@
 from typing import List, Optional
 
-from domain.exceptions.book_not_found import BookNotFound
 from domain.models.book import Book
 from domain.repositories.book_repository import BookRepository
 
@@ -32,8 +31,6 @@ class InMemoryBookRepository(BookRepository):
             if stored_book.id == book.id:
                 self.__books[index] = book
                 break
-        
-        raise BookNotFound()
         
     
     

@@ -1,6 +1,5 @@
 from typing import List, Optional
 
-from domain.exceptions.user_not_registered import UserNotRegistered
 from domain.models.user import User
 from domain.repositories.user_repository import UserRepository
 
@@ -32,8 +31,6 @@ class InMemoryUserRepository(UserRepository):
             if stored_user.id == user.id:
                 self.__users[index] = user
                 break
-        
-        raise UserNotRegistered()
     
     
     def delete(self, id: str) -> None:
