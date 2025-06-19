@@ -30,8 +30,8 @@ class User:
         for book in self.borrowed_books:
             if book.id == book_id:
                 self.borrowed_books.remove(book)
-        self.reputation.increase(1)
+        self.reputation = self.reputation.increase(1)
     
     
     def can_borrow_more(self) -> bool:
-        return not len(self.borrowed_books) > 5
+        return len(self.borrowed_books) < 5
