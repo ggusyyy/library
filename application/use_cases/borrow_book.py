@@ -21,11 +21,10 @@ class BorrowBookUseCase:
     
     def run(self, user_id: str, book_id: str) -> None:
         user: Optional[User] = self.__user_repository.get_by_id(user_id)
-        book: Optional[Book] = self.__book_repository.get_by_id(book_id)
-        
         if not user:
             raise UserNotRegistered()
         
+        book: Optional[Book] = self.__book_repository.get_by_id(book_id)
         if not book:
             raise BookNotFound()
         

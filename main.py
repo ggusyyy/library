@@ -26,9 +26,6 @@ def main() -> None:
     gus = create_user.run(CreateUserDTO(str(uuid4()), "Gus"))
     gus_book = create_book.run(CreateBookDTO(str(uuid4()), "Libro de Gus", gus.name))
     
-    user_repo.save(gus)
-    book_repo.save(gus_book)
-    
     borrow_book.run(gus.id, gus_book.id)
     
     print(gus.borrowed_books)
