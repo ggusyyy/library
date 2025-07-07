@@ -24,6 +24,7 @@ class InMemoryBookRepository(BookRepository):
         for book in self.__books:
             if book.id == id:
                 return book
+        return None
 
 
     def update(self, book: Book) -> None:
