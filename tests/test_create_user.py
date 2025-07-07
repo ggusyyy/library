@@ -10,7 +10,7 @@ from domain.repositories.user_repository import UserRepository
 from infrastructure.repositories.user.in_memory_user_repository import InMemoryUserRepository
 
 
-def test_happy_path() -> None:
+def test_created_user_succesfully() -> None:
     repo: UserRepository = InMemoryUserRepository()
     create_user: CreateUserUseCase = CreateUserUseCase(repo)
     gus: User = create_user.run(CreateUserDTO(str(uuid4()), "gus"))

@@ -20,7 +20,7 @@ from application.use_cases.return_book import ReturnBookUseCase
 from infrastructure.repositories.book.in_memory_book_repository import InMemoryBookRepository
 from infrastructure.repositories.user.in_memory_user_repository import InMemoryUserRepository
 
-def test_happy_path() -> None:
+def test_book_returned_succesfully() -> None:
     user_repo: UserRepository = InMemoryUserRepository()
     book_repo: BookRepository = InMemoryBookRepository()
     

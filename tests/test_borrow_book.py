@@ -21,7 +21,7 @@ from infrastructure.repositories.book.in_memory_book_repository import InMemoryB
 from infrastructure.repositories.user.in_memory_user_repository import InMemoryUserRepository
 
 
-def test_happy_path() -> None:
+def test_book_borrowed_succesfully() -> None:
     user_repo: UserRepository = InMemoryUserRepository()
     book_repo: BookRepository = InMemoryBookRepository()
     
