@@ -13,6 +13,11 @@ class Reputation:
             return self.reputation > other.reputation
         return NotImplemented
     
+    def __lt__(self, other: Any) -> bool:
+        if isinstance(other, Reputation):
+            return self.reputation < other.reputation
+        return NotImplemented
+    
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Reputation):
             return self.reputation == other.reputation
