@@ -1,9 +1,10 @@
-from typing import Optional
+from typing import List, Optional
 from uuid import uuid4
 import pytest
 
 from domain.exceptions.book_not_available import BookNotAvailable
 from domain.exceptions.book_not_found import BookNotFound
+from domain.exceptions.user_cant_borrow_more import UserCantBorrowMore
 from domain.exceptions.user_not_registered import UserNotRegistered
 from domain.models.book import Book
 from domain.models.user import User
@@ -85,3 +86,32 @@ def test_borrow_fails_if_user_not_registered() -> None:
     
     with pytest.raises(UserNotRegistered):
         borrow_book.run("", book.id)
+
+        
+def test_borrow_fails_if_user_cant_borrow_more() -> None:
+    user_repo: UserRepository = InMemoryUserRepository()
+    book_repo: BookRepository = InMemoryBookRepository()
+    
+    create_user: CreateUserUseCase = CreateUserUseCase(user_repo)
+    create_book: CreateBookUseCase = CreateBookUseCase(book_repo)
+    borrow_book: BorrowBookUseCase = BorrowBookUseCase(book_repo, user_repo)
+        
+    user: User = create_user.run(CreateUserDTO(str(uuid4()), "gus"))
+    
+    books: List[Book] = [
+        create_book.run(CreateBookDTO(str(uuid4()), "mi libro 1", "gus 1")), 
+        create_book.run(CreateBookDTO(str(uuid4()), "mi libro 2", "gus 2")),
+        create_book.run(CreateBookDTO(str(uuid4()), "mi libro 3", "gus 3")),
+        create_book.run(CreateBookDTO(str(uuid4()), "mi libro 4", "gus 4")),
+        create_book.run(CreateBookDTO(str(uuid4()), "mi libro 5", "gus 5")),
+        create_book.run(CreateBookDTO(str(uuid4()), "mi libro 6", "gus 6"))
+    ]
+    
+    borrow_book.run(user.id, books[0].id)
+    borrow_book.run(user.id, books[1].id)
+    borrow_book.run(user.id, books[2].id)
+    borrow_book.run(user.id, books[3].id)
+    borrow_book.run(user.id, books[4].id)
+    
+    with pytest.raises(UserCantBorrowMore):
+        borrow_book.run(user.id, books[5].id)
