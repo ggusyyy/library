@@ -1,6 +1,7 @@
 from uuid import uuid4
 from typing import Optional
-import pytest # type: ignore
+from dataclasses import dataclass
+import pytest
 
 from application.use_cases.borrow_book import BorrowBookUseCase
 from domain.exceptions.book_not_found import BookNotFound
@@ -20,30 +21,41 @@ from application.use_cases.return_book import ReturnBookUseCase
 from infrastructure.repositories.book.in_memory_book_repository import InMemoryBookRepository
 from infrastructure.repositories.user.in_memory_user_repository import InMemoryUserRepository
 
-def test_book_returned_succesfully() -> None:
-    user_repo: UserRepository = InMemoryUserRepository()
-    book_repo: BookRepository = InMemoryBookRepository()
-    
-    create_user: CreateUserUseCase = CreateUserUseCase(user_repo)
-    create_book: CreateBookUseCase = CreateBookUseCase(book_repo)
-    
-    return_book: ReturnBookUseCase = ReturnBookUseCase(book_repo, user_repo)
-    borrow_book: BorrowBookUseCase = BorrowBookUseCase(book_repo, user_repo)
-    
-    book: Book = create_book.run(CreateBookDTO(str(uuid4()), "mi libro", "gus"))
-    user: User = create_user.run(CreateUserDTO(str(uuid4()), "gus"))
+@dataclass
+class ReturnBookSetup:
+    user_repo: UserRepository
+    book_repo: BookRepository
+    create_user_use_case: CreateUserUseCase
+    create_book_use_case: CreateBookUseCase
+    return_book_use_case: ReturnBookUseCase
+    borrow_book_use_case: BorrowBookUseCase
 
-    borrow_book.run(user.id, book.id)
+@pytest.fixture
+def return_book_setup() -> ReturnBookSetup:
+    book_repo: BookRepository = InMemoryBookRepository()
+    user_repo: UserRepository = InMemoryUserRepository()
+    create_user_use_case: CreateUserUseCase = CreateUserUseCase(user_repo)
+    create_book_use_case: CreateBookUseCase = CreateBookUseCase(book_repo)
+    return_book_use_case: ReturnBookUseCase = ReturnBookUseCase(book_repo, user_repo)
+    borrow_book_use_case: BorrowBookUseCase = BorrowBookUseCase(book_repo, user_repo)
+    return ReturnBookSetup(user_repo, book_repo, create_user_use_case, create_book_use_case, return_book_use_case, borrow_book_use_case)
+
+
+def test_book_returned_succesfully(return_book_setup: ReturnBookSetup) -> None:
+    book: Book = return_book_setup.create_book_use_case.run(CreateBookDTO(str(uuid4()), "mi libro", "gus"))
+    user: User = return_book_setup.create_user_use_case.run(CreateUserDTO(str(uuid4()), "gus"))
+
+    return_book_setup.borrow_book_use_case.run(user.id, book.id)
     old_reputation: Reputation = user.reputation
     
-    return_book.run(user.id, book.id)
+    return_book_setup.return_book_use_case.run(user.id, book.id)
     new_reputation: Reputation = user.reputation
     
-    user_repo.update(user)
-    book_repo.update(book)
+    return_book_setup.user_repo.update(user)
+    return_book_setup.book_repo.update(book)
     
-    updated_user: Optional[User] = user_repo.get_by_id(user.id)
-    updated_book: Optional[Book] = book_repo.get_by_id(book.id)
+    updated_user: Optional[User] = return_book_setup.user_repo.get_by_id(user.id)
+    updated_book: Optional[Book] = return_book_setup.book_repo.get_by_id(book.id)
     
     assert updated_user is not None
     assert updated_book is not None
@@ -53,42 +65,30 @@ def test_book_returned_succesfully() -> None:
     assert new_reputation > old_reputation
 
 
-def test_return_fails_if_user_does_not_have_the_book() -> None:
-    user_repo: UserRepository = InMemoryUserRepository()
-    book_repo: BookRepository = InMemoryBookRepository()
-    
-    create_user: CreateUserUseCase = CreateUserUseCase(user_repo)
-    create_book: CreateBookUseCase = CreateBookUseCase(book_repo)
-    return_book: ReturnBookUseCase = ReturnBookUseCase(book_repo, user_repo)
-    
-    user: User = create_user.run(CreateUserDTO(str(uuid4()), "gus"))
-    book: Book = create_book.run(CreateBookDTO(str(uuid4()), "mi libro", "gus"))
+def test_return_fails_if_user_does_not_have_the_book(return_book_setup: ReturnBookSetup) -> None:
+    user: User = return_book_setup.create_user_use_case.run(CreateUserDTO(str(uuid4()), "gus"))
+    book: Book = return_book_setup.create_book_use_case.run(CreateBookDTO(str(uuid4()), "mi libro", "gus"))
     
     with pytest.raises(UserDoesNotHaveTheBook):
-        return_book.run(user.id, book.id)
+        return_book_setup.return_book_use_case.run(user.id, book.id)
 
 
-def test_return_fails_if_book_not_found() -> None:
-    user_repo: UserRepository = InMemoryUserRepository()
-    book_repo: BookRepository = InMemoryBookRepository()
-    
-    create_user: CreateUserUseCase = CreateUserUseCase(user_repo)
-    return_book: ReturnBookUseCase = ReturnBookUseCase(book_repo, user_repo)
-    
-    user: User = create_user.run(CreateUserDTO(str(uuid4()), "gus"))
+def test_return_fails_if_book_not_found(return_book_setup: ReturnBookSetup) -> None:
+    user: User = return_book_setup.create_user_use_case.run(CreateUserDTO(str(uuid4()), "gus"))
     
     with pytest.raises(BookNotFound):
-        return_book.run(user.id, "")
-        
-def test_user_reputation_increase() -> None:
-    user: User = User(str(uuid4()), "gus", Reputation(2))
+        return_book_setup.return_book_use_case.run(user.id, "")
+
+
+def test_user_reputation_increase(return_book_setup: ReturnBookSetup) -> None:
+    user: User = return_book_setup.create_user_use_case.run(CreateUserDTO(str(uuid4()), "gus"))
     user.reputation = user.reputation.increase(1)
     
-    assert user.reputation == 3
+    assert user.reputation == 3  # user reputation is 2 by default
 
 
-def test_user_reputation_decrease() -> None:
-    user: User = User(str(uuid4()), "gus", Reputation(2))
+def test_user_reputation_decrease(return_book_setup: ReturnBookSetup) -> None:
+    user: User = return_book_setup.create_user_use_case.run(CreateUserDTO(str(uuid4()), "gus"))
     user.reputation = user.reputation.decrease(1)
     
-    assert user.reputation == 1
+    assert user.reputation == 1  # user reputation is 2 by default

@@ -12,22 +12,26 @@ from infrastructure.repositories.book.in_memory_book_repository import InMemoryB
 
 
 @dataclass
-class CreateBookSetup: ...
+class CreateBookSetup:
+    repo: BookRepository
+    use_case: CreateBookUseCase
 
-def test_book_created_succesfully() -> None:
+@pytest.fixture
+def create_book_setup() -> CreateBookSetup:
     repo: BookRepository = InMemoryBookRepository()
-    create_book: CreateBookUseCase = CreateBookUseCase(repo)
-    gus: Book = create_book.run(CreateBookDTO(str(uuid4()), "mi libro", "gus"))
+    use_case: CreateBookUseCase = CreateBookUseCase(repo)
+    return CreateBookSetup(repo, use_case)
+
+def test_book_created_succesfully(create_book_setup: CreateBookSetup) -> None:
+    gus: Book = create_book_setup.use_case.run(CreateBookDTO(str(uuid4()), "mi libro", "gus"))
     
     assert isinstance(gus, Book)
     assert gus.title == "mi libro"
     assert gus.author == "gus"
     assert gus.id is not None
     
-def test_book_cannot_be_created_if_already_exists() -> None:
-    repo: BookRepository = InMemoryBookRepository()
-    create_book: CreateBookUseCase = CreateBookUseCase(repo)
-    gus: Book = create_book.run(CreateBookDTO(str(uuid4()), "mi libro", "gus"))
+def test_book_cannot_be_created_if_already_exists(create_book_setup: CreateBookSetup) -> None:
+    gus: Book = create_book_setup.use_case.run(CreateBookDTO(str(uuid4()), "mi libro", "gus"))
     
     with pytest.raises(BookAlreadyExists):
-        create_book.run(CreateBookDTO(gus.id, "mi libro", "gus"))
+        create_book_setup.use_case.run(CreateBookDTO(gus.id, "mi libro", "gus"))
