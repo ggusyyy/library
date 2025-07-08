@@ -8,7 +8,7 @@ from infrastructure.repositories.book.queries import BookQueries as BQ
 
 
 class SQLiteBookRepository(BookRepository):
-    def __init__(self, db_path: str = "library.db") -> None:
+    def __init__(self, db_path: str = "books.db") -> None:
         self.__conn: Connection = sqlite3.connect(db_path)
         self.__cursor: Cursor = self.__conn.cursor()
         
