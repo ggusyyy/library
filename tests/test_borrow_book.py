@@ -46,9 +46,6 @@ def test_book_borrowed_succesfully(borrow_book_setup: BorrowBookSetup) -> None:
     
     borrow_book_setup.borrow_book_use_case.run(user.id, book.id)
     
-    borrow_book_setup.user_repo.update(user)
-    borrow_book_setup.book_repo.update(book)
-    
     updated_user: Optional[User] = borrow_book_setup.user_repo.get_by_id(user.id)
     updated_book: Optional[Book] = borrow_book_setup.book_repo.get_by_id(book.id)
     

@@ -24,6 +24,7 @@ class InMemoryUserRepository(UserRepository):
         for user in self.__users:
             if user.id == id:
                 return user
+        return None
 
 
     def update(self, user: User):
@@ -34,7 +35,4 @@ class InMemoryUserRepository(UserRepository):
     
     
     def delete(self, id: str) -> None:
-        for user in self.__users:
-            if user.id == id:
-                self.__users.remove(user)
-                break
+        self.__users = [user for user in self.__users if user.id != id]

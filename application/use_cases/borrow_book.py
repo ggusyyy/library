@@ -31,5 +31,5 @@ class BorrowBookUseCase:
         user.borrow_book(book)
         book.change_availability(False)
         
-        self.__user_repository.save(user)
-        self.__book_repository.save(book)
+        self.__user_repository.update(user)
+        self.__book_repository.update(book)

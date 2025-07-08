@@ -51,9 +51,6 @@ def test_book_returned_succesfully(return_book_setup: ReturnBookSetup) -> None:
     return_book_setup.return_book_use_case.run(user.id, book.id)
     new_reputation: Reputation = user.reputation
     
-    return_book_setup.user_repo.update(user)
-    return_book_setup.book_repo.update(book)
-    
     updated_user: Optional[User] = return_book_setup.user_repo.get_by_id(user.id)
     updated_book: Optional[Book] = return_book_setup.book_repo.get_by_id(book.id)
     

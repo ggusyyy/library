@@ -34,5 +34,5 @@ class ReturnBookUseCase:
         user.reputation.increase(1)
         book.change_availability(True)
         
-        self.__user_repository.save(user)
-        self.__book_repository.save(book)
+        self.__user_repository.update(user)
+        self.__book_repository.update(book)
