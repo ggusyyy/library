@@ -18,8 +18,8 @@ from application.use_cases.create_book import CreateBookUseCase
 from application.use_cases.create_user import CreateUserUseCase
 from application.use_cases.borrow_book import BorrowBookUseCase
 
-from infrastructure.repositories.book.in_memory_book_repository import InMemoryBookRepository
-from infrastructure.repositories.user.in_memory_user_repository import InMemoryUserRepository
+from infrastructure.repositories.book.sqlite_book_repository import SQLiteBookRepository
+from infrastructure.repositories.user.sqlite_user_repository import SQLiteuserRepository
 
 
 @dataclass
@@ -32,8 +32,8 @@ class BorrowBookSetup:
 
 @pytest.fixture
 def borrow_book_setup() -> BorrowBookSetup:
-    book_repo: BookRepository = InMemoryBookRepository()
-    user_repo: UserRepository = InMemoryUserRepository()
+    book_repo: BookRepository = SQLiteBookRepository(":memory:")
+    user_repo: UserRepository = SQLiteuserRepository(":memory:")
     create_user_use_case: CreateUserUseCase = CreateUserUseCase(user_repo)
     create_book_use_case: CreateBookUseCase = CreateBookUseCase(book_repo)
     borrow_book_use_case: BorrowBookUseCase = BorrowBookUseCase(book_repo, user_repo)

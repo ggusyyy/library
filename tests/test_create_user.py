@@ -7,7 +7,7 @@ from application.use_cases.create_user import CreateUserUseCase
 from domain.exceptions.user_already_exists import UserAlreadyExists
 from domain.models.user import User
 from domain.repositories.user_repository import UserRepository
-from infrastructure.repositories.user.in_memory_user_repository import InMemoryUserRepository
+from infrastructure.repositories.user.sqlite_user_repository import SQLiteuserRepository
 
 
 @dataclass
@@ -17,7 +17,7 @@ class CreateUserSetup:
 
 @pytest.fixture
 def create_user_setup() -> CreateUserSetup:
-    repo: UserRepository = InMemoryUserRepository()
+    repo: UserRepository = SQLiteuserRepository(":memory:")
     use_case: CreateUserUseCase = CreateUserUseCase(repo)
     return CreateUserSetup(repo, use_case)
 

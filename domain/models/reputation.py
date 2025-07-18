@@ -31,3 +31,7 @@ class Reputation:
         
     def decrease(self, amount: int) -> "Reputation":
         return Reputation(max(0, self.reputation - amount))
+    
+    @property
+    def to_db_value(self) -> int:
+        return self.reputation

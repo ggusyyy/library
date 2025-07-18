@@ -27,7 +27,7 @@ class SQLiteuserRepository(UserRepository):
         if self.get_by_id(user.id) is None: 
             self.__conn.execute(
                 UQ.INSERT.value,
-                (user.id, user.name, user.reputation)
+                (user.id, user.name, user.reputation.to_db_value)
                 )
             self.__conn.commit()
         else:
